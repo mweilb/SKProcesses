@@ -1,0 +1,102 @@
+:root {
+  --ms-primary: #0078d4;
+  --ms-primary-hover: #106ebe;
+  --ms-secondary: #2b88d8;
+  --ms-neutral-light: #f3f2f1;
+  --ms-neutral-lighter: #edebe9;
+  --ms-neutral-dark: #323130;
+  --ms-neutral-mid: #605e5c;
+  --ms-white: #ffffff;
+
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--ms-neutral-dark);
+  background-color: var(--ms-neutral-light);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: var(--ms-primary);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--ms-primary-hover);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid var(--ms-primary);
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--ms-primary);
+  color: var(--ms-white);
+  cursor: pointer;
+  transition: border-color 0.25s, background 0.25s;
+}
+button:hover {
+  border-color: var(--ms-primary-hover);
+  background: var(--ms-primary-hover);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: var(--ms-neutral-dark);
+    background-color: var(--ms-white);
+  }
+  a:hover {
+    color: var(--ms-secondary);
+  }
+  button {
+    background-color: var(--ms-secondary);
+    color: var(--ms-white);
+    border-color: var(--ms-secondary);
+  }
+}
+
+/* Microsoft Fluent UI palette for Mermaid nodes/edges */
+.mermaid .node rect,
+.mermaid .node polygon,
+.mermaid .node ellipse {
+  fill: #0078D4 !important; /* Fluent blue */
+  stroke: #2B88D8 !important;
+  stroke-width: 2px;
+}
+.mermaid .node text {
+  fill: #ffffff !important;
+  font-weight: 500;
+}
+.mermaid .edgeLabel {
+  fill: #107C10 !important; /* Fluent green for edge labels */
+  font-weight: 500;
+}
+.mermaid .edgePath path {
+  stroke: #E81123 !important; /* Fluent red for edges */
+  stroke-width: 2px;
+}

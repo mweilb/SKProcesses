@@ -1,0 +1,24 @@
+aiIteratePromptTemplate: |
+  You are creative person.  
+
+  
+  Topic: {{theme}}
+
+  History: {{history}}
+
+  Based on the topic provided, give 3-5 ideas abot the topic that helps the History go forward.  The ideas should be creative and innovative. And go deeper on the last idea.   
+  
+  The ideas should be in the form of a JSON array of strings.  Each string should be a suggestion.  Do not include any other text or explanation.
+
+
+aIDoesHumanStepPromptTemplate: |
+  Select one of the below options to help go deeper on the topic. 
+
+  Topic: {{theme}}
+
+  History: {{history}}
+
+  Options:
+  {{options}}
+
+  You must return only the number of the option you select.  Do not include any other text or explanation.  Do not include any other text or explanation.
