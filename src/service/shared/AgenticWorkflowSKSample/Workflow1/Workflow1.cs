@@ -23,14 +23,17 @@ namespace AgenticWorkflowSKSample.Workflow1
 
         private static string TraceErrorInComputeEvent = string.Empty;
 
-        private static string TraceHumanIterateStepEvent = string.Empty;
+        private static string TraceValidateEvent = string.Empty;
  
         private static string TraceAskAppToDoWorkStepEvent = string.Empty;
+        private static string TraceValidationSuccessStepEvent = string.Empty;
+        private static string TraceValidationFailtureStepEvent = string.Empty;
 
         public static string TraceComputeStepInputEvent = string.Empty;
         public static string TraceAiDoesHumanStepInputEvent = string.Empty;   
         public static string TraceInputEventAppToDoWorkStep = string.Empty;
 
+     
 
         public const string RequestSystemToDoWork = "RequestSystemInSaveFile";
  
@@ -86,22 +89,27 @@ namespace AgenticWorkflowSKSample.Workflow1
             var aiDoesHumanStep = builder.AddStepFromType<AIDoesHumanStep, InputPromptState>(
                 new InputPromptState { PromptTemplate = config.AIDoesHumanStepPromptTemplate }
             );
-           
-     
+        
             var askAppToDoWorkStep = builder.AddStepFromType<AskAppToDoWorkStep>();
+
+            var validationStep = builder.AddStepFromType<ValidateStep>();
 
             TraceStartupEvent = WorkflowTraceEvent.CreateTraceEventName(WorkflowProcess<PropertyBag>.StartEvent, computeStep.Name,computeStep.Id);
             TraceAIFigureOutActionEvent = WorkflowTraceEvent.CreateTraceEventName(ComputeStep.ComputeStepEndedEvent, aiIterateStep.Name, aiIterateStep.Id);
             TraceErrorInComputeEvent = WorkflowTraceEvent.CreateTraceEventName(ComputeStep.RequestHumanToFixError, humanInputStep.Name, humanInputStep.Id);
-            TraceHumanIterateStepEvent = WorkflowTraceEvent.CreateTraceEventName("OnFunctionResult", humanInputStep.Name, humanInputStep.Id);
+            TraceValidateEvent = WorkflowTraceEvent.CreateTraceEventName("OnFunctionResult", validationStep.Name, validationStep.Id);
             TraceAskAppToDoWorkStepEvent = WorkflowTraceEvent.CreateTraceEventName(AIDoesHumanStep.AICompleted, askAppToDoWorkStep.Name,askAppToDoWorkStep.Id);    
+
+            TraceValidationSuccessStepEvent = WorkflowTraceEvent.CreateTraceEventName(ValidateStep.SuccessValidationEvent, humanInputStep.Name, humanInputStep.Id);
+            TraceValidationFailtureStepEvent = WorkflowTraceEvent.CreateTraceEventName(ValidateStep.FaileValidateEvent, aiIterateStep.Name, aiIterateStep.Id);
+
 
             TraceComputeStepInputEvent = WorkflowTraceEvent.CreateTraceEventName("App", computeStep.Name,computeStep.Id);    
             TraceAiDoesHumanStepInputEvent = WorkflowTraceEvent.CreateTraceEventName("App", aiDoesHumanStep.Name,aiDoesHumanStep.Id);    
             TraceInputEventAppToDoWorkStep = WorkflowTraceEvent.CreateTraceEventName("App", askAppToDoWorkStep.Name,askAppToDoWorkStep.Id);    
 
             var eventChannelStep = builder.AddProxyStep([RequestSystemToDoWork, WaitingOnHumanIterate, AIDoesHumanStepEvent,WaitingOnHumanToFixInput,
-                                                         TraceStartupEvent,TraceAIFigureOutActionEvent,TraceHumanIterateStepEvent,TraceErrorInComputeEvent, TraceAskAppToDoWorkStepEvent]);
+                                                         TraceValidationSuccessStepEvent,TraceValidationFailtureStepEvent, TraceStartupEvent,TraceAIFigureOutActionEvent,TraceValidateEvent,TraceErrorInComputeEvent, TraceAskAppToDoWorkStepEvent]);
              
             // --- Event Routing (Process Flow) ---
 
@@ -127,9 +135,18 @@ namespace AgenticWorkflowSKSample.Workflow1
                 .SendEventTo(new(aiIterateStep));
 
 
+
             aiIterateStep.OnFunctionResult()
-                .EmitExternalEvent(eventChannelStep, TraceHumanIterateStepEvent)
+                .EmitExternalEvent(eventChannelStep, TraceValidateEvent)
+                .SendEventTo(new(validationStep));
+
+            validationStep.OnEvent(ValidateStep.SuccessValidationEvent)
+                .EmitExternalEvent(eventChannelStep, TraceValidationSuccessStepEvent)
                 .SendEventTo(new(humanInputStep));
+
+            validationStep.OnEvent(ValidateStep.FaileValidateEvent)
+                .EmitExternalEvent(eventChannelStep, TraceValidationFailtureStepEvent)
+                .SendEventTo(new(aiIterateStep));
 
             builder.OnInputEvent(AskAppToDoWorkStep.RequestActivity)
                 .SendEventTo(new(askAppToDoWorkStep));
